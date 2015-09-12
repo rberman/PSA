@@ -1,10 +1,11 @@
-import urllib2
 import re
-
-def appendEscape(char):
-    return "\\"+char
+import json
+import urllib2
 
 def extractInfoAndWrite(reviewChunk):
+
+
+
     helpfulStrip = reviewChunk.split('people found the following review helpful')
     if len(helpfulStrip) == 2:
         helpfulFront = helpfulStrip[0]
@@ -25,8 +26,7 @@ def extractInfoAndWrite(reviewChunk):
     authorTempSplit = authorFrontStrip[1]
     authorBackStrip = authorTempSplit.split('</a>')
     author = authorBackStrip[0]
-    author = re.escape(author)
-    author = author.replace("\\ "," ")
+    author = author.replace("\"","\\\"")
 
     verifiedStrip = authorSplit.split("Verified Purchase")
     if len(verifiedStrip) == 2:
@@ -38,14 +38,16 @@ def extractInfoAndWrite(reviewChunk):
     reviewFrontStripped = reviewTemp[1]
     reviewStrip = reviewFrontStripped.split('</span></div>')
     review = reviewStrip[0]
-    review = re.escape(review)
-    review = review.replace("\\ "," ")
+    review = review.replace("\"","\\\"")
 
-    file.write('{"author":"'+author+'","rating":'+rating+',"verified":'+verified+',"review":"'+review+'","helpfulness":"'+helpful+'"},')
+    extractedInfoInJson = '{"author":"'+author+'","rating":'+rating+',"verified":'+verified+',"review":"'+review+'","helpfulness":"'+helpful+'"},'
+    file.write(extractedInfoInJson)
+
     return
 ##----------------------------------------------------DEFINING LINE---------------------------------------------------------------##
 pageNo = 0
-url = raw_input('Enter URL : ')
+# url = raw_input('Enter URL : ')
+url = "http://www.amazon.com/Google-Chromecast-Streaming-Media-Player/product-reviews/B00DR0PDNE/ref=cm_cr_dp_see_all_btm?ie=UTF8&showViewpoints=1&sortBy=bySubmissionDateDescending"
 url = url.split("ref=cm")
 urlPartOne = "ref=cm_cr_pr_btm_link_"
 urlPartTwo = "?ie=UTF8&showViewpoints=1&sortBy=recent&reviewerType=all_reviews&formatType=all_formats&filterByStar=all_stars&pageNumber="
@@ -59,7 +61,7 @@ except:
 
 ##note this pageNo != 5 is to make data set smaller for testing
 errorCount = 0
-while(pageNo != 5):
+while(pageNo != 3665):
     pageNo = pageNo + 1
     try:
         reviewURL = url[0] + urlPartOne + str(pageNo) + urlPartTwo + str(pageNo)
