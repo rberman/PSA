@@ -1,5 +1,8 @@
 import urllib2
+import re
 
+def appendEscape(char):
+    return "\\"+char
 
 def extractInfoAndWrite(reviewChunk):
     helpfulStrip = reviewChunk.split('people found the following review helpful')
@@ -22,6 +25,8 @@ def extractInfoAndWrite(reviewChunk):
     authorTempSplit = authorFrontStrip[1]
     authorBackStrip = authorTempSplit.split('</a>')
     author = authorBackStrip[0]
+    author = re.escape(author)
+    author = author.replace("\\ "," ")
 
     verifiedStrip = authorSplit.split("Verified Purchase")
     if len(verifiedStrip) == 2:
@@ -33,6 +38,8 @@ def extractInfoAndWrite(reviewChunk):
     reviewFrontStripped = reviewTemp[1]
     reviewStrip = reviewFrontStripped.split('</span></div>')
     review = reviewStrip[0]
+    review = re.escape(review)
+    review = review.replace("\\ "," ")
 
     file.write('{"author":"'+author+'","rating":'+rating+',"verified":'+verified+',"review":"'+review+'","helpfulness":"'+helpful+'"},')
     return
@@ -41,7 +48,7 @@ pageNo = 0
 url = raw_input('Enter URL : ')
 url = url.split("ref=cm")
 urlPartOne = "ref=cm_cr_pr_btm_link_"
-urlPartTwo = "?ie=UTF8&showViewpoints=1&sortBy=recent&reviewerType=all_reviews&filterByStar=all_stars&pageNumber="
+urlPartTwo = "?ie=UTF8&showViewpoints=1&sortBy=recent&reviewerType=all_reviews&formatType=all_formats&filterByStar=all_stars&pageNumber="
 fileNameToSave = "theReviews.txt"
 try:
     file = open(fileNameToSave,"w")
@@ -51,6 +58,7 @@ except:
     print "Error creating file"
 
 ##note this pageNo != 5 is to make data set smaller for testing
+errorCount = 0
 while(pageNo != 5):
     pageNo = pageNo + 1
     try:
@@ -61,19 +69,27 @@ while(pageNo != 5):
         reviewPart = sourceBreak[1]
         big8Reviews = reviewPart.split('class="a-section review">')
         small8Reviews = []
-        for i in range(0,8):
+        i=0
+        while(1):
             try:
                 oneReviewChunk = big8Reviews[i+1]
                 splitEndingChunk = oneReviewChunk.split('</span></div><div class="a-row a-spacing-top-small review-comments">')
                 small8Reviews.append(splitEndingChunk[0])
+                i = i+1
             except:
                 print "Error going next review"
-        file = open(fileNameToSave,"a")        
+                break
+        file = open(fileNameToSave,"a")
         for review in small8Reviews:
             extractInfoAndWrite(review)
         file.close()
+        errorCount = 0
     except:
         print "Error going next page"
+        if errorCount < 5:
+            errorCount = errorCount + 1
+        else:
+            break
 
 with open(fileNameToSave, 'r+') as f:
     f.seek(-1,2) # end of file
