@@ -22,7 +22,7 @@ class DataSanitizer:
 			for review in raw_reviews:
 				tokens = word_tokenize(review["review"])
 
-				if(len(tokens) > 130):
+				if(len(tokens) > 350):
 					reviews.append(review)
 
 		print("Filtered Reviews : ", len(reviews))

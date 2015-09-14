@@ -1,4 +1,5 @@
 import json
+import nltk
 from AmazonReviewCrawler import AmazonReviewCrawler
 from DataSanitizer import DataSanitizer
 
@@ -39,3 +40,13 @@ print("No of unique_reviews : ", len(unique_reviews))
 f = open('reviews_data.json', 'w')
 f.write(json.dumps(unique_reviews))
 f.close()
+
+reviews_count = 0
+token_count = 0
+reviews = json.load(open("reviews_data.json"))
+reviews_count += len(reviews)
+for review in reviews:
+	token_count += len(nltk.word_tokenize(review["review"]))
+
+print("Total Documents : ", reviews_count)
+print("Total Tokens    : ", token_count)
