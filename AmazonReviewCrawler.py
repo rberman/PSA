@@ -4,7 +4,7 @@ from xml.dom import minidom
 from util.html_parser import ReviewPageNumberParser
 from util.html_parser import ReviewParser
 
-class AmazonReviewCrawler(object):
+class AmazonReviewCrawler:
 
 	@staticmethod
 	def retrieveLastReviewsPageNumber(product_name, product_code):
